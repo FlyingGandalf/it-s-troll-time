@@ -1,0 +1,127 @@
+import pygame
+
+def checkCollision(x, y, goalx, goaly):
+    global screen, textWin
+    collisionState = False
+    if y >= goaly and y < goaly + 100:
+        if x >= goalx and x <= goalx+100:
+            y = 665
+            collisionState = True
+        elif x + 100 >= goalx and x + 100 <= goalx + 100:
+            y = 665
+            collisionState = True
+    elif y + 100 >= goaly and y + 100 <= goaly + 100:
+        if x  >= goalx and x<= goalx+100:
+            y = 665
+            collisionState = True
+        elif x+ 100 >= goalx and x + 100 <= goalx + 100:
+            y = 665
+            collisionState = True
+    return collisionState, y
+pygame.init()
+screen = pygame.display.set_mode((900,700))
+finished = False
+x = 400
+y = 665
+
+# array = [0, 1.2, 4.5, "Hello"]
+# print(array[2])
+# print pygame.K_SPACE
+galaga = pygame.image.load("astronavo.png")
+galaga = pygame.transform.scale(galaga, (100, 100))
+galaga = galaga.convert_alpha()
+backgroundImage = pygame.image.load("spazioiniziale.jpg")
+backgroundImage = pygame.transform.scale(backgroundImage, (900, 700))
+screen.blit(backgroundImage, (0, 0))
+
+continueImage = pygame.image.load("continued.png")
+continueImage = pygame.transform.scale(continueImage, (500, 400))
+continueImage = continueImage.convert_alpha()
+
+goalImage = pygame.image.load("goal.png")
+goalImage = pygame.transform.scale(goalImage, (70, 50))
+goalImage = goalImage.convert_alpha()
+
+enemyImage = pygame.image.load("genio.png")
+enemyImage = pygame.transform.scale(enemyImage, (80, 100))
+enemyImage = enemyImage.convert_alpha()
+
+goalx = 410
+goaly = 100
+
+enemyx = 50
+enemyy = 450
+
+continuex = 400
+continuey = 400
+
+font = pygame.font.SysFont("comicsans", 85)
+level = 1
+
+
+frame = pygame.time.Clock()
+collisionGoal= False
+collisionEnemy = False
+movingRight = True
+
+while finished == False:
+    for event in  pygame.event.get():
+        if event.type == pygame.QUIT:
+            finished = True
+
+    pressedKeys = pygame.key.get_pressed()
+    if enemyx >= 750:
+        movingRight = False
+    elif enemyx <= 50:
+        movingRight = True
+    if movingRight == True:
+        enemyx += 15
+    else:
+        enemyx -= 15
+    if pressedKeys[pygame.K_DOWN] == 1:
+        y += 5
+    if pressedKeys[pygame.K_RIGHT] == 1:
+        x += 5
+    if pressedKeys[pygame.K_LEFT] == 1:
+        x -= 5
+    if pressedKeys[pygame.K_UP] == 1:
+        y -= 5
+
+    #white = (255,255,255)
+    #color = (0, 0, 255)
+    #lack = (0, 0, 0)
+    #pygame.draw.rect(screen, color, rect0ne)
+    screen.blit(backgroundImage, (0, 0))
+    screen.blit(goalImage, (goalx, goaly))
+    screen.blit(galaga, (x, y))
+    screen.blit(enemyImage, (enemyx, enemyy))
+    collisionGoal, y = checkCollision(x, y, goalx, goaly)
+    collisionEnemy, y = checkCollision(x, y, enemyx, enemyy)
+    
+
+
+    if collisionGoal == True:
+        level += 1
+        textWin = font.render("you reached level "+str(level),True, (255, 255, 255))
+        screen.blit(textWin, (450 - textWin.get_width()/2, 350 - textWin.get_height()/2))
+        pygame.display.flip()
+        frame.tick(1)
+        pygame.mixer.music.load("to be continued.mp3")
+        pygame.mixer.music.play(1)
+        screen.blit(continueImage, (continuex, continuey))
+        pygame.display.flip()
+        frame.tick(0.1)
+    elif collisionEnemy == True:
+        collisionEnemy = False
+        textWin = font.render("you loser", True, (255, 255, 255))
+        screen.blit(textWin, (450 - textWin.get_width()/2, 350 - textWin.get_height()/2))
+        pygame.mixer.music.load("death.mp3")
+        pygame.mixer.music.play(1)
+        pygame.display.flip()
+        frame.tick(1)
+        pygame.mixer.music.load("tequila.mp3")
+        pygame.mixer.music.play(-1)
+
+    pygame.display.flip()
+    frame.tick(40)
+
